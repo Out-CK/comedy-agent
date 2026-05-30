@@ -47,6 +47,15 @@ def run_ticketing_run() -> None:
         logger.error(f"Scheduled Comedy Ticketing Run failed: {e}", exc_info=True)
 
 
+def run_venue_enricher() -> None:
+    from agent.venue_enricher import VenueEnricher
+    logger.info("Scheduled Venue Enricher triggered")
+    try:
+        VenueEnricher(event_type="comedy").run()
+    except Exception as e:
+        logger.error(f"Scheduled Venue Enricher failed: {e}", exc_info=True)
+
+
 def start_scheduler() -> None:
     """Start the APScheduler and block until Ctrl+C.
 
@@ -86,6 +95,13 @@ def start_scheduler() -> None:
         name="Daily Comedy TikTok Run",
         replace_existing=True,
     )
+    scheduler.add_job(
+        run_venue_enricher,
+        trigger=CronTrigger(hour=12, minute=15, timezone=eastern),
+        id="daily_venue_enricher",
+        name="Daily Venue Enricher",
+        replace_existing=True,
+    )
 
     scheduler.start()
     logger.info("Comedy Scheduler started:")
@@ -93,6 +109,7 @@ def start_scheduler() -> None:
     logger.info("  11:15 AM ET — Ticketing Run")
     logger.info("  11:30 AM ET — Instagram Run")
     logger.info("  11:45 AM ET — TikTok Run")
+    logger.info("  12:15 PM ET — Venue Enricher")
     logger.info("Press Ctrl+C to stop")
     try:
         while True:

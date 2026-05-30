@@ -49,6 +49,7 @@ def main() -> None:
     group.add_argument("--instagram", action="store_true", help="Trigger an Instagram Run immediately")
     group.add_argument("--tiktok", action="store_true", help="Trigger a TikTok Run immediately")
     group.add_argument("--ticketing-run", action="store_true", help="Query ticketing platforms immediately")
+    group.add_argument("--enrich-venues", action="store_true", help="Find addresses for unmapped venues")
     args = parser.parse_args()
 
     from db.supabase_client import get_supabase_client
@@ -78,6 +79,11 @@ def main() -> None:
         logger.info("Mode: --ticketing-run | Querying ticketing platforms")
         from ticketing.ticketing_agent import ComedyTicketingAgent
         ComedyTicketingAgent().run()
+
+    elif args.enrich_venues:
+        logger.info("Mode: --enrich-venues | Finding addresses for unmapped venues")
+        from agent.venue_enricher import VenueEnricher
+        VenueEnricher(event_type="comedy").run()
 
 
 if __name__ == "__main__":
