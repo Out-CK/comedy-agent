@@ -32,7 +32,9 @@ Rules:
 - start_time / end_time format: "00:00am" or "00:00pm" (e.g. "08:00pm")
 - If comedian/show name, venue, OR date cannot be confidently determined, SKIP that entry entirely.
 - For ticket links found in post captions or bios, populate tickets_source_1 with the URL.
-  Otherwise use no_tickets_source_1 with the Instagram profile URL as the source.
+  Still populate no_tickets_source_1 with the SPECIFIC POST URL if one is provided (e.g.
+  "https://www.instagram.com/p/ABC123/"). If no specific post URL is available, use
+  the Instagram profile URL instead.
 - DO NOT set event_entry_id or entry_batch_id — leave them as empty strings "".
 - Return JSON with key "entries" containing an array of EventEntry objects.
 
