@@ -24,8 +24,10 @@ from agent.past_event_archiver import PastEventArchiver
 from agent.web_batch_parser import EventEntry
 from db.operations import (
     get_existing_venue_coords,
+    get_recent_instagram_scrapes,
     insert_event_entries,
     insert_web_batch,
+    upsert_instagram_scrape,
 )
 from db.supabase_client import get_supabase_client
 from tools.nimble_instagram_tool import NimbleInstagramProfileTool
@@ -104,8 +106,15 @@ class ComedyInstagramAgent:
         self._step_log("Step 1: Scrape Instagram Profiles")
         post_pages: list[dict] = []
         try:
+            recently_scraped = get_recent_instagram_scrapes(days=5)
+            accounts_to_scrape = [h for h in NYC_COMEDY_INSTAGRAM_ACCOUNTS if h not in recently_scraped]
+            logger.info(
+                f"Instagram: {len(accounts_to_scrape)} accounts to scrape "
+                f"({len(recently_scraped)} skipped — scraped within 5 days)"
+            )
+            stats["accounts_attempted"] = len(accounts_to_scrape)
             raw_profiles = asyncio.run(
-                self._scrape_profiles_concurrent(NYC_COMEDY_INSTAGRAM_ACCOUNTS)
+                self._scrape_profiles_concurrent(accounts_to_scrape)
             )
             for handle, profile_data in raw_profiles:
                 if not profile_data:
@@ -121,6 +130,7 @@ class ComedyInstagramAgent:
                     continue
 
                 stats["profiles_scraped"] += 1
+                upsert_instagram_scrape(handle)
                 combined_text = f"BIOGRAPHY: {bio}\n\n"
                 for post in posts:
                     caption = self._extract_post_caption(post)
