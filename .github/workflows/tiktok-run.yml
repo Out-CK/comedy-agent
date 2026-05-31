@@ -1,9 +1,6 @@
 name: Daily TikTok Run
 
-on:
-  schedule:
-    - cron: "45 15 * * *" # 11:45 AM ET (UTC-4)
-  workflow_dispatch:
+on: workflow_dispatch
 
 jobs:
   tiktok-run:

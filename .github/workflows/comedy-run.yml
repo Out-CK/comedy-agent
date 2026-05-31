@@ -1,9 +1,6 @@
 name: Daily Comedy Run
 
-on:
-  schedule:
-    - cron: "0 15 * * *" # 11:00 AM ET (UTC-4)
-  workflow_dispatch:
+on: workflow_dispatch
 
 jobs:
   comedy-run:
